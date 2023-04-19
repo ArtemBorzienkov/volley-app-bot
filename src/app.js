@@ -4,7 +4,7 @@ const token = '6039130844:AAHJNyjY70qSgBY9019hR0eyUrrjI_1apMc';
 
 const server = {
   bot: null,
-  groupChatId: '-858008076',
+  groupChatId: '-1001880573200',
   isRegistration: false,
   db: {
     thuesday: [],
@@ -19,7 +19,7 @@ const postRegistrationMsg = () => {
 }
 
 const clearData = () => {
-  server.isRegistration = true
+  server.isRegistration = false
   server.db = {
     thuesday: [],
     thursday: [],
@@ -57,10 +57,10 @@ server.bot.on('message', (msg) => {
         return
       }
 
-      console.log(`removing user: ${msg.from.username}`)
+      console.log(`removing user: ${msg.from.first_name}`)
       server.isRegistration = true
       server.db.thuesday = server.db.thuesday.filter(user => user.id !== msg.from.id)
-      server.bot.sendMessage(server.groupChatId, `@${msg.from.username} вас видалив, залишилось місць: ${8 - server.db.thuesday.length}`);
+      server.bot.sendMessage(server.groupChatId, `@${msg.from.first_name} вас видалив, залишилось місць: ${8 - server.db.thuesday.length}`);
       if (server.db.thuesday.length >= 8) {
         server.isRegistration = false
         server.bot.sendMessage(server.groupChatId, `Дякую всім, всі місця заброньовані!`);
@@ -72,10 +72,10 @@ server.bot.on('message', (msg) => {
         return
       }
 
-      console.log(`removing user: ${msg.from.username}`)
+      console.log(`removing user: ${msg.from.first_name}`)
       server.isRegistration = true
       server.db.thursday = server.db.thursday.filter(user => user.id !== msg.from.id)
-      server.bot.sendMessage(server.groupChatId, `@${msg.from.username} вас видалив, залишилось місць: ${8 - server.db.thursday.length}`);
+      server.bot.sendMessage(server.groupChatId, `@${msg.from.first_name} вас видалив, залишилось місць: ${8 - server.db.thursday.length}`);
       if (server.db.thursday.length >= 8) {
         server.isRegistration = false
         server.bot.sendMessage(server.groupChatId, `Дякую всім, всі місця заброньовані!`);
@@ -87,10 +87,10 @@ server.bot.on('message', (msg) => {
         return
       }
 
-      console.log(`removing user: ${msg.from.username}`)
+      console.log(`removing user: ${msg.from.first_name}`)
       server.isRegistration = true
       server.db.saturday = server.db.saturday.filter(user => user.id !== msg.from.id)
-      server.bot.sendMessage(server.groupChatId, `@${msg.from.username} вас видалив, залишилось місць: ${8 - server.db.saturday.length}`);
+      server.bot.sendMessage(server.groupChatId, `@${msg.from.first_name} вас видалив, залишилось місць: ${8 - server.db.saturday.length}`);
       if (server.db.saturday.length >= 8) {
         server.isRegistration = false
         server.bot.sendMessage(server.groupChatId, `Дякую всім, всі місця заброньовані!`);
@@ -115,9 +115,9 @@ server.bot.on('message', (msg) => {
     }
 
     if (dayNumb === 1 || dayNumb === 2) {
-      console.log(`adding user: ${msg.from.username}`)
+      console.log(`adding user: ${msg.from.first_name}`)
       server.db.thuesday.push(...members)
-      server.bot.sendMessage(server.groupChatId, `@${msg.from.username} вас записав ${members.length > 1 ? 'і напарника(цю)' : ''}, залишилось місць: ${8 - server.db.thuesday.length}`);
+      server.bot.sendMessage(server.groupChatId, `@${msg.from.first_name} вас записав ${members.length > 1 ? 'і напарника(цю)' : ''}, залишилось місць: ${8 - server.db.thuesday.length}`);
       if (server.db.thuesday.length >= 8) {
         server.isRegistration = false
         server.bot.sendMessage(server.groupChatId, `Дякую всім, всі місця заброньовані!`);
@@ -125,9 +125,9 @@ server.bot.on('message', (msg) => {
     }
 
     if (dayNumb === 3 || dayNumb === 4) {
-      console.log(`adding user: ${msg.from.username}`)
+      console.log(`adding user: ${msg.from.first_name}`)
       server.db.thursday.push(...members)
-      server.bot.sendMessage(server.groupChatId, `@${msg.from.username} вас записав ${members.length > 1 ? 'і напарника(цю)' : ''}, залишилось місць: ${8 - server.db.thursday.length}`);
+      server.bot.sendMessage(server.groupChatId, `@${msg.from.first_name} вас записав ${members.length > 1 ? 'і напарника(цю)' : ''}, залишилось місць: ${8 - server.db.thursday.length}`);
       if (server.db.thursday.length >= 8) {
         server.isRegistration = false
         server.bot.sendMessage(server.groupChatId, `Дякую всім, всі місця заброньовані!`);
@@ -135,9 +135,9 @@ server.bot.on('message', (msg) => {
     }
 
     if (dayNumb === 5 || dayNumb === 6) {
-      console.log(`adding user: ${msg.from.username}`)
+      console.log(`adding user: ${msg.from.first_name}`)
       server.db.saturday.push(...members)
-      server.bot.sendMessage(server.groupChatId, `@${msg.from.username} вас записав ${members.length > 1 ? 'і напарника(цю)' : ''}, залишилось місць: ${8 - server.db.saturday.length}`);
+      server.bot.sendMessage(server.groupChatId, `@${msg.from.first_name} вас записав ${members.length > 1 ? 'і напарника(цю)' : ''}, залишилось місць: ${8 - server.db.saturday.length}`);
       if (server.db.saturday.length >= 8) {
         server.isRegistration = false
         server.bot.sendMessage(server.groupChatId, `Дякую всім, всі місця заброньовані!`);
