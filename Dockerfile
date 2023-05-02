@@ -18,4 +18,4 @@ COPY . .
 WORKDIR /usr/app/src
 
 EXPOSE 8080
-CMD [ "node", "app.js" ]
+CMD [ "npm", "run", "start" ]
