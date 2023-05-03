@@ -36,7 +36,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: user/app:${{ github.run_id }}
+        tags: artemborzienkov/volley-app:${{ github.run_id }}
 
     - name: DigitalOcean App Platform deployment
       uses: digitalocean/app_action@v1.1.4
