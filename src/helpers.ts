@@ -49,6 +49,9 @@ export const WEEK_DAYS = [
   'суббота',
 ];
 
+export const isDev = () =>
+  process.env.NODE_ENV === 'dev';
+
 const getTextByValue = (value: number) => {
   if (value === 1) {
     return 'Буду';

@@ -1,6 +1,6 @@
 export const config = [
   {
-    chat_id: '-902457580',
+    chat_id: '-1001880573200',
     coach_id: '',
     trains: [
       {

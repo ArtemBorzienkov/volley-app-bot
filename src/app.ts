@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import {
   IServer,
   IUser,
@@ -8,22 +9,20 @@ import {
   getUserPrint,
   WEEK_DAYS,
   PostingData,
+  isDev,
 } from './helpers';
 import { config } from './config';
 
 const TelegramBot = require('node-telegram-bot-api');
 
-const prodToken =
-  '6039130844:AAHJNyjY70qSgBY9019hR0eyUrrjI_1apMc';
-const devToken =
-  '6125553246:AAGeWXvl38S9L_XU-X2UPMIQMRLarBJyndk';
-const prodChatId = '-1001880573200';
-const devChatId = '-902457580';
+const testChatId = '-902457580';
 
 const server: IServer = {
   bot: null,
   db: {},
 };
+
+dotenv.config();
 
 const postRegistrationMsg = (
   data: PostingData,
@@ -35,7 +34,7 @@ const postRegistrationMsg = (
   server.db[data.chat_id][eventDate] =
     getInitTraining(Number(data.max));
   server.bot.sendMessage(
-    prodChatId,
+    isDev() ? testChatId : data.chat_id,
     `Всім привіт! 👋\nВідкрито запис на тренування ✍️\nКоли? ${data.day} ${eventDate} 📆\nДе? ${data.location} 📍`,
     {
       reply_markup: {
@@ -90,9 +89,12 @@ const getIntervalBeforeFirstPost = () => {
 };
 
 function init() {
-  server.bot = new TelegramBot(prodToken, {
-    polling: true,
-  });
+  server.bot = new TelegramBot(
+    process.env.BOT_TOKEN,
+    {
+      polling: true,
+    },
+  );
 
   console.log(
     'volley-app-bot version 1.0 started',

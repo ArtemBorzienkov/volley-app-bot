@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/ArtemBorzienkov/tgAssistantBot#readme",
   "dependencies": {
+    "dotenv": "^16.0.3",
     "node-telegram-bot-api": "^0.61.0"
   },
   "devDependencies": {
