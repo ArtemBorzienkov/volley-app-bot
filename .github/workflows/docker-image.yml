@@ -43,6 +43,7 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
         ssh-host: ${{ secrets.DO_HOST_IP }}
+    - run: echo SUCCESS_LOGIN
   
 #       uses: invi5H/ssh-action@v1
 #       with:
