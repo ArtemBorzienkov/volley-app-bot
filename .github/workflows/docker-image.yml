@@ -38,13 +38,31 @@ jobs:
 #         push: true
 #         tags: artemborzienkov/volley-app:${{ github.run_id }}
         
-    - id: ssh
-      uses: invi5H/ssh-action@v1
+    - name: ssh scp ssh pipelines
+      uses: cross-the-world/ssh-scp-ssh-pipelines@latest
+      env:
+        WELCOME: "ssh scp ssh pipelines"
+        LASTSSH: "Doing something after copying"
       with:
-        SSH_HOST: ${{ secrets.DO_HOST_IP }}
-        SSH_USER: root
-        SSH_KEY: ${{ secrets.DO_HOST_KEY }}
-    - run: ssh ${{ steps.ssh.outputs.SERVER }} echo "SUCCESS_LOGIN"
+        host: ${{ secrets.DO_HOST_IP }}
+        key: ${{ secrets.DO_HOST_KEY }}
+        user: root
+        connect_timeout: 20s
+        first_ssh: |
+          echo SUCCESS_LOGIN
+#         first_ssh: |
+#           rm -rf /home/github/test
+#           ls -la  \necho $WELCOME 
+#           mkdir -p /home/github/test/test1 && 
+#           mkdir -p /home/github/test/test2 &&
+#         scp: |
+#           './test/*' => /home/github/test/
+#           ./test/test1* => /home/github/test/test1/
+#           ./test/test*.csv => "/home/github/test/test2/"
+#         last_ssh: |
+#           echo $LASTSSH && 
+#           (mkdir test1/test || true)
+#           || ls -la
 
 #     - name: Deploy new image to digital ocean
 #       uses: invi5H/ssh-action@v1
@@ -52,5 +70,5 @@ jobs:
 #         SSH_HOST: ${{ secrets.DO_HOST_IP }}
 #         SSH_USER: root
 #         SSH_KEY: ${{ secrets.DO_HOST_KEY }}
-#         - run: echo "SUCCESS_LOGIN"
+#         - run: echo SUCCESS_LOGIN
 
