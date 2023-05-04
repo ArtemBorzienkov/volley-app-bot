@@ -35,12 +35,6 @@ jobs:
         context: .
         push: true
         tags: artemborzienkov/volley-app:${{ github.run_id }}
-
-#     - name: Deploy and run new image to digital ocean
-#       uses: kielabokkie/ssh-key-and-known-hosts-action@v1
-#       with:
-#         ssh-private-key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
-#         ssh-host: ${{ secrets.DO_HOST_IP }}
         
     - name: Deploy and run new image to digital ocean
       uses: appleboy/ssh-action@master
@@ -53,4 +47,4 @@ jobs:
           docker stop volley-app &&
           docker rm volley-app &&
           docker pull artemborzienkov/volley-app:${{ github.run_id }} &&
-          docker run -d --name volley-app -e NODE_ENV=dev -e BOT_TOKEN=6125553246:AAGeWXvl38S9L_XU-X2UPMIQMRLarBJyndk artemborzienkov/volley-app:${{ github.run_id }}
+          docker run -d --name volley-app -e NODE_ENV=prod -e BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }} artemborzienkov/volley-app:${{ github.run_id }}
