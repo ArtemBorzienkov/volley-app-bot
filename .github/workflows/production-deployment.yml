@@ -47,7 +47,8 @@ jobs:
       with:
         host: ${{ secrets.DO_HOST_IP }}
         username: root
-        key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
+        password: ${{ secrets.DO_HOST_PASS }}
+#         key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
         script: whoami
     
 #     - run: |
