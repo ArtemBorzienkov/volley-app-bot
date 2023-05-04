@@ -40,13 +40,10 @@ jobs:
         
     - name: ssh scp ssh pipelines
       uses: cross-the-world/ssh-scp-ssh-pipelines@latest
-      env:
-        WELCOME: "ssh scp ssh pipelines"
-        LASTSSH: "Doing something after copying"
       with:
         host: ${{ secrets.DO_HOST_IP }}
         user: root
-        pass: ${{ secrets.DO_HOST_PASS }}
+        pass: ${{ secrets.DO_HOST_PUB_KEY }}
         connect_timeout: 20s
         first_ssh: |
           echo SUCCESS_LOGIN
