@@ -45,8 +45,8 @@ jobs:
         LASTSSH: "Doing something after copying"
       with:
         host: ${{ secrets.DO_HOST_IP }}
-        key: ${{ secrets.DO_HOST_KEY }}
         user: root
+        pass: ${{ secrets.DO_HOST_PASS }}
         connect_timeout: 20s
         first_ssh: |
           echo SUCCESS_LOGIN
