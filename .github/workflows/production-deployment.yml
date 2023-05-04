@@ -36,25 +36,20 @@ jobs:
         push: true
         tags: artemborzienkov/volley-app:${{ github.run_id }}
 
-    - name: Deploy and run new image to digital ocean
-      uses: kielabokkie/ssh-key-and-known-hosts-action@v1
-      with:
-        ssh-private-key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
-        ssh-host: ${{ secrets.DO_HOST_IP }}
+#     - name: Deploy and run new image to digital ocean
+#       uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+#       with:
+#         ssh-private-key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
+#         ssh-host: ${{ secrets.DO_HOST_IP }}
         
-    - name: executing remote ssh commands using ssh key
+    - name: Deploy and run new image to digital ocean
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.DO_HOST_IP }}
         username: root
-#         password: ${{ secrets.DO_HOST_PASS }}
         key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
         script: |
-          echo SUCCESS_LOGIN
-        
-    
-#     - run: |
-#         echo SUCCESS_LOGIN &&
-#         docker stop  $(docker ps -q) &&
-#         docker pull artemborzienkov/volley-app:${{ github.run_id }} &&
-#         docker run -d --name volley-app -e NODE_ENV=dev -e BOT_TOKEN=6125553246:AAGeWXvl38S9L_XU-X2UPMIQMRLarBJyndk artemborzienkov/volley-app:${{ github.run_id }}
+          echo SUCCESS_LOGIN &&
+          docker stop  $(docker ps -q) &&
+          docker pull artemborzienkov/volley-app:${{ github.run_id }} &&
+          docker run -d --name volley-app -e NODE_ENV=dev -e BOT_TOKEN=6125553246:AAGeWXvl38S9L_XU-X2UPMIQMRLarBJyndk artemborzienkov/volley-app:${{ github.run_id }}
