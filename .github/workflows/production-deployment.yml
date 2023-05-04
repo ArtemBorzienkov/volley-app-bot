@@ -43,7 +43,6 @@ jobs:
         ssh-host: ${{ secrets.DO_HOST_IP }}
     - run: |
         echo SUCCESS_LOGIN &&
-        docker stop volley-app &&
-        docker rm volley-app &&
+        docker stop  $(docker ps -q) &&
         docker pull artemborzienkov/volley-app:${{ github.run_id }} &&
         docker run -d --name volley-app -e NODE_ENV=dev -e BOT_TOKEN=6125553246:AAGeWXvl38S9L_XU-X2UPMIQMRLarBJyndk artemborzienkov/volley-app:${{ github.run_id }}
