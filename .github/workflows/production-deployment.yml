@@ -43,13 +43,15 @@ jobs:
         ssh-host: ${{ secrets.DO_HOST_IP }}
         
     - name: executing remote ssh commands using ssh key
-      uses: appleboy/ssh-action@v0.1.10
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.DO_HOST_IP }}
         username: root
-        password: ${{ secrets.DO_HOST_PASS }}
-#         key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
-        script: whoami
+#         password: ${{ secrets.DO_HOST_PASS }}
+        key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
+        script: |
+          echo SUCCESS_LOGIN
+        
     
 #     - run: |
 #         echo SUCCESS_LOGIN &&
