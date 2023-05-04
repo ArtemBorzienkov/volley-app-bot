@@ -41,8 +41,17 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
         ssh-host: ${{ secrets.DO_HOST_IP }}
-    - run: |
-        echo SUCCESS_LOGIN &&
-        docker stop  $(docker ps -q) &&
-        docker pull artemborzienkov/volley-app:${{ github.run_id }} &&
-        docker run -d --name volley-app -e NODE_ENV=dev -e BOT_TOKEN=6125553246:AAGeWXvl38S9L_XU-X2UPMIQMRLarBJyndk artemborzienkov/volley-app:${{ github.run_id }}
+        
+    - name: executing remote ssh commands using ssh key
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.DO_HOST_IP }}
+        username: root
+        key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
+        script: whoami
+    
+#     - run: |
+#         echo SUCCESS_LOGIN &&
+#         docker stop  $(docker ps -q) &&
+#         docker pull artemborzienkov/volley-app:${{ github.run_id }} &&
+#         docker run -d --name volley-app -e NODE_ENV=dev -e BOT_TOKEN=6125553246:AAGeWXvl38S9L_XU-X2UPMIQMRLarBJyndk artemborzienkov/volley-app:${{ github.run_id }}
