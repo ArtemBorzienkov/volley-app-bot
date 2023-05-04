@@ -31,16 +31,18 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
   
-    - name: Build and push
+    - name: Build and push build to registry
       uses: docker/build-push-action@v4
       with:
         context: .
         push: true
         tags: artemborzienkov/volley-app:${{ github.run_id }}
 
-    - name: DigitalOcean App Platform deployment
-      uses: digitalocean/app_action@v1.1.4
+    - name: Deploy new image to digital ocean
+      uses: appleboy/ssh-action@0.1.2
       with:
-        app_name: starfish-app
-        token: ${{ secrets.DO_ACCESS_TOKEN }}
-        images: '[{ "name": "app-img", "image": {"registry_type": "DOCKER_HUB", "registry": "artemborzienkov", "repository": "volley-app", "tag": ${{ github.run_id }} }]'
+        host: ${{ secrets.DO_HOST_IP }}
+        key: ${{ secrets.DO_HOST_KEY }}
+        username: root
+        script: |
+          echo "SUCCESS_LOGIN"
