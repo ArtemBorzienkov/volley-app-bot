@@ -37,31 +37,13 @@ jobs:
 #         context: .
 #         push: true
 #         tags: artemborzienkov/volley-app:${{ github.run_id }}
-        
-    - name: ssh scp ssh pipelines
-      uses: cross-the-world/ssh-scp-ssh-pipelines@latest
-      with:
-        host: ${{ secrets.DO_HOST_IP }}
-        user: root
-        pass: ${{ secrets.DO_HOST_PUB_KEY }}
-        connect_timeout: 20s
-        first_ssh: |
-          echo SUCCESS_LOGIN
-#         first_ssh: |
-#           rm -rf /home/github/test
-#           ls -la  \necho $WELCOME 
-#           mkdir -p /home/github/test/test1 && 
-#           mkdir -p /home/github/test/test2 &&
-#         scp: |
-#           './test/*' => /home/github/test/
-#           ./test/test1* => /home/github/test/test1/
-#           ./test/test*.csv => "/home/github/test/test2/"
-#         last_ssh: |
-#           echo $LASTSSH && 
-#           (mkdir test1/test || true)
-#           || ls -la
 
-#     - name: Deploy new image to digital ocean
+    - name: Deploy new image to digital ocean
+      uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+      with:
+        ssh-private-key: ${{ secrets.DO_HOST_PRIVATE_KEY }}
+        ssh-host: ${{ secrets.DO_HOST_IP }}
+  
 #       uses: invi5H/ssh-action@v1
 #       with:
 #         SSH_HOST: ${{ secrets.DO_HOST_IP }}
