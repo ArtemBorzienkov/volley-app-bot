@@ -63,7 +63,9 @@ const runPostingWorker = () => {
       if (el.day === WEEK_DAYS[dayNum + 1]) {
         arrPosting.push({
           ...el,
-          chat_id: item.chat_id,
+          chat_id: isDev()
+            ? testChatId
+            : item.chat_id,
         });
       }
     }),
@@ -105,13 +107,17 @@ function init() {
       getIntervalBeforeFirstPost() / 60000
     } mins`,
   );
-  setTimeout(() => {
-    runPostingWorker();
-    setInterval(
-      () => runPostingWorker(),
-      60000 * 60 * 24,
-    );
-  }, getIntervalBeforeFirstPost());
+  setInterval(
+    () => runPostingWorker(),
+    60000 * 60 * 24,
+  );
+  // setTimeout(() => {
+  //   runPostingWorker();
+  //   setInterval(
+  //     () => runPostingWorker(),
+  //     60000 * 60 * 24,
+  //   );
+  // }, getIntervalBeforeFirstPost());
 }
 
 init();
