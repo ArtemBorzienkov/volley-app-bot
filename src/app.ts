@@ -107,6 +107,7 @@ function init() {
       getIntervalBeforeFirstPost() / 60000
     } mins`,
   );
+  runPostingWorker();
   setInterval(
     () => runPostingWorker(),
     60000 * 60 * 24,
