@@ -10,6 +10,7 @@ import {
   WEEK_DAYS,
   PostingData,
   isDev,
+  TIME_FOR_POSTING_UTC,
 } from './helpers';
 import { config } from './config';
 
@@ -24,27 +25,20 @@ const server: IServer = {
 
 dotenv.config();
 
-const postRegistrationMsg = (
-  data: PostingData,
-) => {
+const postRegistrationMsg = (data: PostingData) => {
   const eventDate = getTrainingDate(1);
   if (!server.db[data.chat_id]) {
     server.db[data.chat_id] = {};
   }
-  server.db[data.chat_id][eventDate] =
-    getInitTraining(Number(data.max));
+  server.db[data.chat_id][eventDate] = getInitTraining(Number(data.max));
   server.bot.sendMessage(
     isDev() ? testChatId : data.chat_id,
-    `Всім привіт! 👋\nВідкрито запис на тренування ✍️\nКоли? ${data.day} ${eventDate} 📆\nДе? ${data.location} 📍`,
+    `Всім привіт! 👋\nВідкрито запис на тренування ✍️\nКоли? ${data.day} ${eventDate} ${data.time} 📆\nДе? ${data.location} 📍`,
     {
       reply_markup: {
         inline_keyboard: [
           [getKeyBoardOption(eventDate, 1)],
-          [
-            getKeyBoardOption(eventDate, 2),
-            getKeyBoardOption(eventDate, 3),
-            getKeyBoardOption(eventDate, 4),
-          ],
+          [getKeyBoardOption(eventDate, 2), getKeyBoardOption(eventDate, 3), getKeyBoardOption(eventDate, 4)],
           [getKeyBoardOption(eventDate, 0)],
         ],
       },
@@ -54,26 +48,22 @@ const postRegistrationMsg = (
 
 const runPostingWorker = () => {
   const dayNum = new Date().getDay();
-  console.log(
-    `start posting, today is ${WEEK_DAYS[dayNum]}`,
-  );
+  const todayWeekDay = WEEK_DAYS[dayNum];
+  const tomorowWeekDay = WEEK_DAYS[dayNum + 1];
+  console.log(`start posting, today is ${todayWeekDay}`);
   const arrPosting: PostingData[] = [];
   config.forEach((item) =>
     item.trains.forEach((el) => {
-      if (el.day === WEEK_DAYS[dayNum + 1]) {
+      if (el.day === tomorowWeekDay) {
         arrPosting.push({
           ...el,
-          chat_id: isDev()
-            ? testChatId
-            : item.chat_id,
+          chat_id: isDev() ? testChatId : item.chat_id,
         });
       }
     }),
   );
 
-  arrPosting.forEach((data) =>
-    postRegistrationMsg(data),
-  );
+  arrPosting.forEach((data) => postRegistrationMsg(data));
 };
 
 const getIntervalBeforeFirstPost = () => {
@@ -81,108 +71,59 @@ const getIntervalBeforeFirstPost = () => {
   const now = new Date();
   const hours = now.getUTCHours();
   const mins = now.getMinutes();
-  if (hours < 8) {
+  if (hours < TIME_FOR_POSTING_UTC) {
     return minsToMs(60 - mins);
   }
 
-  const diff = hours + 1 - 11;
+  const diff = hours + 1 - TIME_FOR_POSTING_UTC;
   const hoursUntilNext11 = 24 - diff;
   return minsToMs(hoursUntilNext11 * 60 - mins);
 };
 
 function init() {
-  server.bot = new TelegramBot(
-    process.env.BOT_TOKEN,
-    {
-      polling: true,
-    },
-  );
+  server.bot = new TelegramBot(process.env.BOT_TOKEN, {
+    polling: true,
+  });
 
-  console.log(
-    `volley-app-bot version 1.0 started in ${process.env.NODE_ENV} mode`,
-  );
+  console.log(`volley-app-bot version 1.0 started in ${process.env.NODE_ENV} mode`);
 
-  console.log(
-    `first post will be in ${
-      getIntervalBeforeFirstPost() / 60000
-    } mins`,
-  );
-  runPostingWorker();
-  setInterval(
-    () => runPostingWorker(),
-    60000 * 60 * 24,
-  );
-  // setTimeout(() => {
-  //   runPostingWorker();
-  //   setInterval(
-  //     () => runPostingWorker(),
-  //     60000 * 60 * 24,
-  //   );
-  // }, getIntervalBeforeFirstPost());
+  console.log(`first post will be in ${getIntervalBeforeFirstPost() / 60000} mins`);
+  setTimeout(() => {
+    runPostingWorker();
+    setInterval(() => runPostingWorker(), 60000 * 60 * 24);
+  }, getIntervalBeforeFirstPost());
 }
 
 init();
 
-const removeMembers = (
-  chatId: string,
-  date: string,
-  user: IUser,
-) => {
-  if (
-    !chatId ||
-    !date ||
-    !user ||
-    !server.db[chatId] ||
-    !server.db[chatId][date]
-  ) {
+const removeMembers = (chatId: string, date: string, user: IUser) => {
+  if (!chatId || !date || !user || !server.db[chatId] || !server.db[chatId][date]) {
     return;
   }
 
   const training = server.db[chatId][date];
-  if (
-    training.members.length === 0 ||
-    !training.members.some(
-      (m) => m.id === user.id,
-    )
-  ) {
+  if (training.members.length === 0 || !training.members.some((m) => m.id === user.id)) {
     return;
   }
 
-  training.members = [
-    ...training.members.filter(
-      (m) => m.id !== user.id,
-    ),
-  ];
+  training.members = [...training.members.filter((m) => m.id !== user.id)];
 
-  server.bot.editMessageText(
-    getMembersMsg(
-      training.members,
-      training.maxMembers,
-    ),
-    {
-      chat_id: chatId,
-      message_id: training.msg,
-    },
-  );
+  server.bot.editMessageText(getMembersMsg(training.members, training.maxMembers), {
+    chat_id: chatId,
+    message_id: training.msg,
+  });
 };
 
-const registryNewMembers = (
-  chatId: string,
-  date: string,
-  user: IUser,
-  value: number,
-) => {
-  if (
-    !chatId ||
-    !date ||
-    !user ||
-    !server.db[chatId] ||
-    !server.db[chatId][date]
-  ) {
+const registryNewMembers = (chatId: string, date: string, user: IUser, value: number) => {
+  console.log('🚀 ~ file: app.ts:119 ~ registryNewMembers ~ user:', user);
+  if (!chatId || !date || !user || !server.db[chatId] || !server.db[chatId][date]) {
     return;
   }
 
   console.log(`add member: ${user}`);
+
+  // TODO: Hardcode for Kostya
+  const isUserCoach = user.id === 1115502449;
 
   const newMemb: IUser[] = [];
   for (let index = 0; value > index; index++) {
@@ -200,60 +141,29 @@ const registryNewMembers = (
   const training = server.db[chatId][date];
 
   if (training.members) {
-    if (
-      value === 1 &&
-      training.members.some(
-        (m) => m.id === user.id,
-      )
-    ) {
-      console.log(
-        `${getUserPrint(
-          user,
-        )} is already registered`,
-      );
+    const isUserAlreadyRegistered = training.members.some((m) => m.id === user.id);
+    if (isUserAlreadyRegistered && !isUserCoach) {
+      console.log(`${getUserPrint(user)} is already registered`);
       return;
     }
 
-    if (
-      training.members.length >=
-      training.maxMembers
-    ) {
+    if (training.members.length >= training.maxMembers) {
       console.log('members list is already full');
       return;
     }
 
-    training.members = [
-      ...training.members,
-      ...newMemb,
-    ];
+    training.members = [...training.members.filter((m) => m.id !== user.id), ...newMemb];
   } else {
     training.members = newMemb;
   }
 
   if (!training.msg) {
-    server.bot
-      .sendMessage(
-        chatId,
-        getMembersMsg(
-          training.members,
-          training.maxMembers,
-        ),
-      )
-      .then(
-        (data) =>
-          (training.msg = data.message_id),
-      );
+    server.bot.sendMessage(chatId, getMembersMsg(training.members, training.maxMembers)).then((data) => (training.msg = data.message_id));
   } else {
-    server.bot.editMessageText(
-      getMembersMsg(
-        training.members,
-        training.maxMembers,
-      ),
-      {
-        chat_id: chatId,
-        message_id: training.msg,
-      },
-    );
+    server.bot.editMessageText(getMembersMsg(training.members, training.maxMembers), {
+      chat_id: chatId,
+      message_id: training.msg,
+    });
   }
 };
 
@@ -263,23 +173,11 @@ server.bot.on('callback_query', (q) => {
   if (value === 0) {
     removeMembers(chatId, date, q.from);
   } else {
-    registryNewMembers(
-      chatId,
-      date,
-      q.from,
-      value,
-    );
+    registryNewMembers(chatId, date, q.from, value);
   }
-  console.log(
-    server.db[chatId][date].members.map(
-      getUserPrint,
-    ),
-  );
+  console.log(server.db[chatId][date].members.map(getUserPrint));
 });
 
 server.bot.on('message', (msg) => {
-  console.log(
-    '🚀 ~ file: app.ts:76 ~ server.bot.on ~ msg:',
-    msg,
-  );
+  console.log('🚀 ~ file: app.ts:76 ~ server.bot.on ~ msg:', msg);
 });
