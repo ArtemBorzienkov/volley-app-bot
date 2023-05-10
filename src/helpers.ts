@@ -71,8 +71,7 @@ export const getTrainingDate = (daysInFuture: number) => {
 
 export const getUserPrint = (user: IUser) => {
   const userName = user.username ? `@${user.username}` : '';
-
-  return `${user.first_name} ${user.last_name} ${userName} ${user.meta || ''}`;
+  return `${user.first_name} ${user.last_name || ''} ${userName} ${user.meta || ''}`;
 };
 
 export const getMembersMsg = (members: IUser[], max: number) =>
