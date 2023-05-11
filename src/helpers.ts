@@ -74,5 +74,17 @@ export const getUserPrint = (user: IUser) => {
   return `${user.first_name} ${user.last_name || ''} ${userName} ${user.meta || ''}`;
 };
 
-export const getMembersMsg = (members: IUser[], max: number) =>
-  `Записані: ${members.map((m, index) => `\n${index + 1}: ${getUserPrint(m)}`)}\nЗалишилось місць: ${max - members.length}`;
+export const getMembersMsg = (members: IUser[], max: number, reserv?: IUser[]) => {
+  let endMsgPart;
+  if (reserv) {
+    endMsgPart = `Резерв: ${reserv.map((m, index) => `\n${index + 1}: ${getUserPrint(m)}`)}`;
+  } else {
+    endMsgPart = `Залишилось місць: ${max - members.length}`;
+  }
+  return `Записані: ${members.map((m, index) => `\n${index + 1}: ${getUserPrint(m)}`)}\n${endMsgPart}`;
+};
+
+export const getReplaceMembMsg = (removed: IUser, date: string, added: IUser[]) => {
+  const adedMembMsg = added && added.length > 0 ? `\nзапрошуються на тренування:${added.map((m, index) => `\n${index + 1}: ${getUserPrint(m)}`)}` : '';
+  return `${getUserPrint(removed)} відмінив(ла) реєстрацію на ${date}${adedMembMsg}`;
+};
