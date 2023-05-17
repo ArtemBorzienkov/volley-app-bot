@@ -12,12 +12,13 @@ import {
   isDev,
   TIME_FOR_POSTING_UTC,
   getReplaceMembMsg,
+  getChatTopicId,
 } from './helpers';
 import { config } from './config';
 
 const TelegramBot = require('node-telegram-bot-api');
 
-const testChatId = '-902457580';
+const testChatId = '-1001928873227';
 
 const server: IServer = {
   bot: null,
@@ -27,11 +28,11 @@ const server: IServer = {
 dotenv.config();
 
 const postRegistrationMsg = (data: PostingData) => {
-  const eventDate = getTrainingDate(1);
-  if (!server.db[data.chat_id]) {
-    server.db[data.chat_id] = {};
+  const eventDate = getTrainingDate(data);
+  if (!server.db[getChatTopicId(data.chat_id, data.topic_id)]) {
+    server.db[getChatTopicId(data.chat_id, data.topic_id)] = {};
   }
-  server.db[data.chat_id][eventDate] = getInitTraining(Number(data.max));
+  server.db[getChatTopicId(data.chat_id, data.topic_id)][eventDate] = getInitTraining(Number(data.max));
   server.bot.sendMessage(
     isDev() ? testChatId : data.chat_id,
     `Всім привіт! 👋\nВідкрито запис на тренування ✍️\nКоли? ${data.day} ${eventDate} ${data.time} 📆\nДе? ${data.location} 📍`,
@@ -43,6 +44,7 @@ const postRegistrationMsg = (data: PostingData) => {
           [getKeyBoardOption(eventDate, 0)],
         ],
       },
+      message_thread_id: data.is_forum && data.topic_id ? data.topic_id : null,
     },
   );
 };
@@ -50,16 +52,15 @@ const postRegistrationMsg = (data: PostingData) => {
 const runPostingWorker = () => {
   const dayNum = new Date().getDay();
   const todayWeekDay = WEEK_DAYS[dayNum];
-  const tomorowWeekDay = WEEK_DAYS[dayNum + 1];
   console.log(`start posting, today is ${todayWeekDay}`);
   const arrPosting: PostingData[] = [];
   config.forEach((item) =>
-    item.trains.forEach((el) => {
-      if (el.day === tomorowWeekDay) {
+    item.trains.forEach((el: Partial<PostingData>) => {
+      if (el.publish_day === todayWeekDay) {
         arrPosting.push({
           ...el,
           chat_id: isDev() ? testChatId : item.chat_id,
-        });
+        } as PostingData);
       }
     }),
   );
@@ -97,12 +98,12 @@ function init() {
 
 init();
 
-const removeMembers = (chatId: string, date: string, user: IUser) => {
-  if (!chatId || !date || !user || !server.db[chatId] || !server.db[chatId][date]) {
+const removeMembers = (chatId: string, date: string, user: IUser, topicId?: number) => {
+  if (!chatId || !date || !user || !server.db[getChatTopicId(chatId, topicId)] || !server.db[getChatTopicId(chatId, topicId)][date]) {
     return;
   }
 
-  const training = server.db[chatId][date];
+  const training = server.db[getChatTopicId(chatId, topicId)][date];
   const isUserInMembersList = training.members && training.members.some((m) => m.id === user.id);
   const isUserInReservList = training.reserve && training.reserve.some((m) => m.id === user.id);
 
@@ -128,24 +129,25 @@ const removeMembers = (chatId: string, date: string, user: IUser) => {
       training.members = [...training.members, ...usersFromReserv];
     }
 
-    server.bot.sendMessage(chatId, getReplaceMembMsg(user, date, usersFromReserv));
+    server.bot.sendMessage(chatId, getReplaceMembMsg(user, date, usersFromReserv), { message_thread_id: topicId ? topicId : null });
   }
 
-  server.bot.editMessageText(getMembersMsg(training.members, training.maxMembers), {
+  server.bot.editMessageText(getMembersMsg(training.members), {
     chat_id: chatId,
     message_id: training.msg,
   });
 };
 
-const registryNewMembers = (chatId: string, date: string, user: IUser, value: number) => {
-  if (!chatId || !date || !user || !server.db[chatId] || !server.db[chatId][date]) {
+const registryNewMembers = (chatId: string, date: string, user: IUser, value: number, topicId?: number) => {
+  if (!chatId || !date || !user || !server.db[getChatTopicId(chatId, topicId)] || !server.db[getChatTopicId(chatId, topicId)][date]) {
     return;
   }
 
   console.log('add member:', user);
 
-  // TODO: Hardcode for Kostya
-  const isUserCoach = user.id === 1115502449;
+  // TODO: Hardcode for Kostya user.id === 1115502449
+  const group: any = config.find((item: any) => item.chat_id === chatId);
+  const isUserCoach = group && group.coach_id === user.id;
 
   const newMemb: IUser[] = [];
   for (let index = 0; value > index; index++) {
@@ -160,7 +162,7 @@ const registryNewMembers = (chatId: string, date: string, user: IUser, value: nu
     };
   }
 
-  const training = server.db[chatId][date];
+  const training = server.db[getChatTopicId(chatId, topicId)][date];
 
   if (training.members) {
     const membersNumb = training.members.length;
@@ -198,9 +200,11 @@ const registryNewMembers = (chatId: string, date: string, user: IUser, value: nu
   }
 
   if (!training.msg) {
-    server.bot.sendMessage(chatId, getMembersMsg(training.members, training.maxMembers, training.reserve)).then((data) => (training.msg = data.message_id));
+    server.bot
+      .sendMessage(chatId, getMembersMsg(training.members, training.reserve), { message_thread_id: topicId ? topicId : null })
+      .then((data) => (training.msg = data.message_id));
   } else {
-    server.bot.editMessageText(getMembersMsg(training.members, training.maxMembers, training.reserve), {
+    server.bot.editMessageText(getMembersMsg(training.members, training.reserve), {
       chat_id: chatId,
       message_id: training.msg,
     });
@@ -209,13 +213,14 @@ const registryNewMembers = (chatId: string, date: string, user: IUser, value: nu
 
 server.bot.on('callback_query', (q) => {
   const chatId = q.message.chat.id;
+  const topicId = q.message.message_thread_id || 0;
   const { date, value } = JSON.parse(q.data);
   if (value === 0) {
-    removeMembers(chatId, date, q.from);
+    removeMembers(chatId, date, q.from, topicId);
   } else {
-    registryNewMembers(chatId, date, q.from, value);
+    registryNewMembers(chatId, date, q.from, value, topicId);
   }
-  console.log(server.db[chatId][date].members.map(getUserPrint));
+  console.log(server.db[getChatTopicId(chatId, topicId)][date].members.map(getUserPrint));
 });
 
 server.bot.on('message', (msg) => {
