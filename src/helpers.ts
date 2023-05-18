@@ -27,6 +27,9 @@ export interface PostingData {
   time: string;
   max: string;
   location: string;
+  is_forum: boolean;
+  publish_day: string;
+  topic_id?: number;
 }
 
 export type ChatIdTraining = Record<string, ITraining>;
@@ -41,6 +44,8 @@ export const WEEK_DAYS = ['неділя', 'понеділок', 'вівторо�
 export const TIME_FOR_POSTING_UTC = 8;
 
 export const isDev = () => process.env.NODE_ENV === 'dev';
+
+export const getChatTopicId = (chatId: string, topicId = 0) => `${chatId}_${topicId}`;
 
 const getTextByValue = (value: number) => {
   if (value === 1) {
@@ -64,9 +69,12 @@ export const getInitTraining = (maxMembers: number): ITraining => ({
   maxMembers,
 });
 
-export const getTrainingDate = (daysInFuture: number) => {
-  const tomorow = new Date(new Date().setDate(new Date().getDate() + daysInFuture));
-  return `${tomorow.getDate()}.${tomorow.getMonth()}.${tomorow.getFullYear()}`;
+export const getTrainingDate = (data: PostingData) => {
+  const todayIndexWeek = new Date().getDay();
+  const trainIndexWeek = WEEK_DAYS.findIndex((el) => el === data.day);
+  const dayBeforeTrain = trainIndexWeek > todayIndexWeek ? trainIndexWeek - todayIndexWeek : 7 - todayIndexWeek + trainIndexWeek;
+  const eventDate = new Date(new Date().setDate(new Date().getDate() + dayBeforeTrain));
+  return `${eventDate.getDate()}.${eventDate.getMonth()}.${eventDate.getFullYear()}`;
 };
 
 export const getUserPrint = (user: IUser) => {
@@ -74,13 +82,8 @@ export const getUserPrint = (user: IUser) => {
   return `${user.first_name} ${user.last_name || ''} ${userName} ${user.meta || ''}`;
 };
 
-export const getMembersMsg = (members: IUser[], max: number, reserv?: IUser[]) => {
-  let endMsgPart;
-  if (reserv) {
-    endMsgPart = `Резерв: ${reserv.map((m, index) => `\n${index + 1}: ${getUserPrint(m)}`)}`;
-  } else {
-    endMsgPart = `Залишилось місць: ${max - members.length}`;
-  }
+export const getMembersMsg = (members: IUser[] = [], reserv: IUser[] = []) => {
+  const endMsgPart = `Резерв: ${reserv.map((m, index) => `\n${index + 1}: ${getUserPrint(m)}`)}`;
   return `Записані: ${members.map((m, index) => `\n${index + 1}: ${getUserPrint(m)}`)}\n${endMsgPart}`;
 };
 
