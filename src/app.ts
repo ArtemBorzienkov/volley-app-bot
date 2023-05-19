@@ -15,6 +15,7 @@ import {
   getChatTopicId,
 } from './helpers';
 import { config } from './config';
+import { API } from './api';
 
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -82,18 +83,21 @@ const getIntervalBeforeFirstPost = () => {
   return minsToMs(hoursUntilNext11 * 60 - mins);
 };
 
-function init() {
+async function init() {
   server.bot = new TelegramBot(process.env.BOT_TOKEN, {
     polling: true,
   });
-
   console.log(`volley-app-bot version 1.0 started in ${process.env.NODE_ENV} mode`);
 
   console.log(`first post will be in ${getIntervalBeforeFirstPost() / 60000} mins`);
-  setTimeout(() => {
-    runPostingWorker();
-    setInterval(() => runPostingWorker(), 60000 * 60 * 24);
-  }, getIntervalBeforeFirstPost());
+  API.GET_CONFIG().then((resp) => {
+    console.log('config fetched');
+    server.db = resp;
+    setTimeout(() => {
+      runPostingWorker();
+      setInterval(() => runPostingWorker(), 60000 * 60 * 24);
+    }, getIntervalBeforeFirstPost());
+  });
 }
 
 init();
@@ -136,6 +140,7 @@ const removeMembers = (chatId: string, date: string, user: IUser, topicId?: numb
     chat_id: chatId,
     message_id: training.msg,
   });
+  API.UPD_CONFIG(server.db);
 };
 
 const registryNewMembers = (chatId: string, date: string, user: IUser, value: number, topicId?: number) => {
@@ -200,14 +205,16 @@ const registryNewMembers = (chatId: string, date: string, user: IUser, value: nu
   }
 
   if (!training.msg) {
-    server.bot
-      .sendMessage(chatId, getMembersMsg(training.members, training.reserve), { message_thread_id: topicId ? topicId : null })
-      .then((data) => (training.msg = data.message_id));
+    server.bot.sendMessage(chatId, getMembersMsg(training.members, training.reserve), { message_thread_id: topicId ? topicId : null }).then((data) => {
+      training.msg = data.message_id;
+      API.UPD_CONFIG(server.db);
+    });
   } else {
     server.bot.editMessageText(getMembersMsg(training.members, training.reserve), {
       chat_id: chatId,
       message_id: training.msg,
     });
+    API.UPD_CONFIG(server.db);
   }
 };
 

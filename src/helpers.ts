@@ -69,12 +69,14 @@ export const getInitTraining = (maxMembers: number): ITraining => ({
   maxMembers,
 });
 
+const getParsedNumber = (numb: number): string => (numb < 10 ? `0${numb}` : String(numb));
+
 export const getTrainingDate = (data: PostingData) => {
   const todayIndexWeek = new Date().getDay();
   const trainIndexWeek = WEEK_DAYS.findIndex((el) => el === data.day);
   const dayBeforeTrain = trainIndexWeek > todayIndexWeek ? trainIndexWeek - todayIndexWeek : 7 - todayIndexWeek + trainIndexWeek;
   const eventDate = new Date(new Date().setDate(new Date().getDate() + dayBeforeTrain));
-  return `${eventDate.getDate()}.${eventDate.getMonth()}.${eventDate.getFullYear()}`;
+  return `${getParsedNumber(eventDate.getDate())}.${getParsedNumber(eventDate.getMonth() + 1)}.${eventDate.getFullYear()}`;
 };
 
 export const getUserPrint = (user: IUser) => {
