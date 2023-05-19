@@ -147,7 +147,6 @@ const registryNewMembers = (chatId: string, date: string, user: IUser, value: nu
   if (!chatId || !date || !user || !server.db[getChatTopicId(chatId, topicId)] || !server.db[getChatTopicId(chatId, topicId)][date]) {
     return;
   }
-  console.log('🚀 ~ file: app.ts:150 ~ registryNewMembers ~ date:', date);
 
   console.log('add member:', user);
 
