@@ -7,8 +7,6 @@ export const API = {
     try {
       const response = await fetch(default_url);
       const data = await response.json();
-
-      console.log(data);
       return data;
     } catch (e) {
       console.log('error', e);
