@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const default_url = 'http://127.0.0.1:3000';
+const default_url = 'http://localhost:3000';
 
 export const API = {
   GET_CONFIG: async () => {
