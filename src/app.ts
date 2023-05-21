@@ -91,7 +91,7 @@ async function init() {
 
   console.log(`first post will be in ${getIntervalBeforeFirstPost() / 60000} mins`);
   API.GET_CONFIG().then((resp) => {
-    console.log('config fetched');
+    console.log(`config fetched: ${resp}`);
     server.db = resp;
     setTimeout(() => {
       runPostingWorker();
