@@ -47,4 +47,4 @@ jobs:
           docker stop volley-app &&
           docker rm volley-app &&
           docker pull artemborzienkov/volley-app:${{ github.run_id }} &&
-          docker run -d --name volley-app -e NODE_ENV=prod -e BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }} artemborzienkov/volley-app:${{ github.run_id }}
+          docker run -d --name volley-app -e NODE_ENV=prod -e BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }} API_URL=${{ secrets.API_URL }} artemborzienkov/volley-app:${{ github.run_id }}
