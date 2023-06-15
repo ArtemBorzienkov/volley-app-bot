@@ -150,10 +150,8 @@ const registryNewMembers = (chatId: string, date: string, user: IUser, value: nu
   }
 
   console.log('add member:', user);
-
-  // TODO: Hardcode for Kostya user.id === 1115502449
-  const group: any = config.find((item: any) => item.chat_id === chatId);
-  const isUserCoach = group && group.coach_id === user.id;
+  const group: any = config.find((item: any) => item.chat_id === String(chatId));
+  const isUserCoach = group && group.coach_id === String(user.id);
 
   const newMemb: IUser[] = [];
   for (let index = 0; value > index; index++) {
@@ -232,5 +230,7 @@ server.bot.on('callback_query', (q) => {
 });
 
 server.bot.on('message', (msg) => {
-  console.log('🚀 ~ file: app.ts:76 ~ server.bot.on ~ msg:', msg);
+  if (msg.text === 'init') {
+    console.log('🚀 ~ msg:', msg);
+  }
 });
