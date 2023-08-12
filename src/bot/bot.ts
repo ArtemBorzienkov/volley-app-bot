@@ -308,11 +308,11 @@ class Bot {
       this._minsTillPost -= 60;
       console.log(`Minutes left till next post: ${this._minsTillPost}`);
     }, 60000 * 60);
-    this.runPostingWorker();
-    // setTimeout(() => {
-    //   this.runPostingWorker();
-    //   setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
-    // }, minsToMs(this._minsTillPost));
+
+    setTimeout(() => {
+      this.runPostingWorker();
+      setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
+    }, minsToMs(this._minsTillPost));
   }
 }
 
