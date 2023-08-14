@@ -21,6 +21,8 @@ import { configHandler } from '../config';
 import { createTraining, getTraining, updateTraining } from '../training';
 import { addNewMember, getMembers, removeMembers } from '../member';
 
+const uniqid = require('uniqid');
+
 const TelegramBot = require('node-telegram-bot-api');
 
 const testChatId = '-1001928873227';
@@ -41,7 +43,6 @@ class Bot {
   }
 
   async postRegistrationMsg(data: Config) {
-    console.log('🚀 ~ file: bot.ts:44 ~ Bot ~ postRegistrationMsg ~ data:', data);
     const eventDate = getTrainingDate(data);
     const training = await createTraining(data, eventDate);
 
@@ -67,7 +68,6 @@ class Bot {
     const todayWeekDay = WEEK_DAYS[dayNum];
     console.log(`start posting, today is ${todayWeekDay}`);
     const arrPosting = config.filter((cfg) => cfg.publish_day === todayWeekDay).map((cfg) => ({ ...cfg, chat_id: isDev() ? testChatId : cfg.chat_id }));
-    console.log('🚀 ~ file: bot.ts:69 ~ Bot ~ runPostingWorker ~ arrPosting:', arrPosting);
     arrPosting.forEach((data) => this.postRegistrationMsg(data));
   }
 
@@ -148,9 +148,10 @@ class Bot {
       if (new_chat_member && new_chat_member.id === Number(process.env.BOT_ID)) {
         console.log(`bot joined to a new chat: ${chat.title}`);
         API.CONFIG.CREATE({
+          id: uniqid(),
           chat_id: String(chat.id),
           chat_title: chat.title,
-          coach_id: from.id,
+          coach_id: String(from.id),
           day: '',
           time: '',
           max: 0,
@@ -174,7 +175,7 @@ class Bot {
       }
 
       // check for set up location
-      const notCompledConfig = configHandler.getNotCompletedConfig(from.id);
+      const notCompledConfig = configHandler.getNotCompletedConfig(String(from.id));
       if (notCompledConfig) {
         const createdConfig = configHandler.buildConfig(notCompledConfig.id, { location: text });
         await configHandler.saveConfig(createdConfig.id);
@@ -285,7 +286,7 @@ class Bot {
           return;
         }
 
-        const createdConfig = configHandler.buildConfig('', { chat_id: data.id, chat_title: data.title, coach_id: q.from.id });
+        const createdConfig = configHandler.buildConfig('', { chat_id: data.id, chat_title: data.title, coach_id: String(q.from.id) });
         this._bot.sendMessage(chatId, `Виберіть день тренування`, {
           reply_markup: {
             inline_keyboard: WEEK_DAYS.map((day) => [

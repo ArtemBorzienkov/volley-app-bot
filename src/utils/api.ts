@@ -74,14 +74,14 @@ export const API = {
       });
       return memb.json();
     },
-    GET: async (id: number) => {
+    GET: async (id: string) => {
       const memb = await fetch(`${process.env.API_URL}/member?training_id=${id}`, {
         method: 'get',
         headers: { 'Content-Type': 'application/json' },
       });
       return memb.json();
     },
-    DELETE: async (userId: number, trainingId: number) => {
+    DELETE: async (userId: string, trainingId: string) => {
       const memb = await fetch(`${process.env.API_URL}/member?user_id=${userId}&training_id=${trainingId}`, {
         method: 'delete',
         headers: { 'Content-Type': 'application/json' },

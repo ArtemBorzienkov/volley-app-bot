@@ -1,9 +1,12 @@
 import { API } from '../utils/api';
 import { Config, Training } from '../utils/types';
 
+const uniqid = require('uniqid');
+
 export const createTraining = async (config: Config, eventDate: string) => {
   try {
     const payload: Training = {
+      id: uniqid(),
       configId: config.id,
       coachId: String(config.coach_id),
       date: eventDate,

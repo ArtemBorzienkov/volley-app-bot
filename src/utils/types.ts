@@ -1,8 +1,8 @@
 export interface Config {
-  id?: string;
+  id: string;
   chat_id: string;
   chat_title: string;
-  coach_id: number;
+  coach_id: string;
   day: string;
   time: string;
   max: number;
@@ -13,7 +13,7 @@ export interface Config {
 }
 
 export interface User {
-  id?: number;
+  id: string;
   firstName: string;
   lastName: string;
   userName?: string;
@@ -22,7 +22,7 @@ export interface User {
 }
 
 export interface Training {
-  id?: number;
+  id: string;
   coachId: string;
   configId: string;
   date: string;
@@ -31,9 +31,9 @@ export interface Training {
 }
 
 export interface TrainingMember {
-  id?: number;
-  userId: number;
-  trainingId: number;
+  id: string;
+  userId: string;
+  trainingId: string;
   name: string;
   createdAt: number;
   isInvited: boolean;

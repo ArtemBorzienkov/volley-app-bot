@@ -7,9 +7,10 @@ const uniqid = require('uniqid');
 type ConfigCreation = Config & { isFinished: boolean };
 
 const DEFAULT_CONFIG: ConfigCreation = {
+  id: '',
   chat_id: '',
   chat_title: '',
-  coach_id: 0,
+  coach_id: '',
   day: '',
   time: '',
   max: 0,
@@ -23,7 +24,7 @@ const DEFAULT_CONFIG: ConfigCreation = {
 class ConfigClass {
   private _configCreationData: Map<string, ConfigCreation> = new Map();
 
-  getNotCompletedConfig(coachId: number) {
+  getNotCompletedConfig(coachId: string) {
     let config: ConfigCreation | null;
     this._configCreationData.forEach((el) => {
       if (el.coach_id === coachId && !el.isFinished) {

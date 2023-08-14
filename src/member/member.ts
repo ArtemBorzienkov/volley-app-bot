@@ -3,16 +3,18 @@ import { API } from '../utils/api';
 import { getUserPrint } from '../utils/helpers';
 import { handleUser } from '../user';
 
+const uniqid = require('uniqid');
+
 export const addNewMember = async (user: TgUser, training: Training, oldMembs: TrainingMember[], value: number): Promise<TrainingMember[]> => {
   console.log('add new member');
   const isUserCoach = training.coachId === String(user.id);
-  const isAlreadyRegistered = oldMembs.some((m) => m.userId === user.id);
+  const isAlreadyRegistered = oldMembs.some((m) => m.userId === String(user.id));
   if (!isUserCoach && isAlreadyRegistered) {
     return oldMembs;
   }
 
   await handleUser({
-    id: user.id,
+    id: String(user.id),
     firstName: user.first_name,
     lastName: user.last_name || '',
     userName: user.username || '',
@@ -26,7 +28,8 @@ export const addNewMember = async (user: TgUser, training: Training, oldMembs: T
   for (let i = 0; i < value; i++) {
     const isFirstMemb = i === 0;
     const usr: TrainingMember = {
-      userId: user.id,
+      id: uniqid(),
+      userId: String(user.id),
       trainingId: training.id,
       name: getUserPrint({ ...user, meta: isFirstMemb ? '' : `+${i}` }),
       createdAt,
@@ -39,17 +42,17 @@ export const addNewMember = async (user: TgUser, training: Training, oldMembs: T
   return membs;
 };
 
-export const removeMembers = async (user: TgUser, oldMembs: TrainingMember[], trainingId: number): Promise<TrainingMember[]> => {
-  const isRegistered = oldMembs.some((m) => m.userId === user.id);
+export const removeMembers = async (user: TgUser, oldMembs: TrainingMember[], trainingId: string): Promise<TrainingMember[]> => {
+  const isRegistered = oldMembs.some((m) => m.userId === String(user.id));
   if (!isRegistered) {
     return oldMembs;
   }
 
-  const membs = await API.MEMBERS.DELETE(user.id, trainingId);
+  const membs = await API.MEMBERS.DELETE(String(user.id), trainingId);
   return membs;
 };
 
-export const getMembers = async (trainingId: number): Promise<TrainingMember[]> => {
+export const getMembers = async (trainingId: string): Promise<TrainingMember[]> => {
   const membs = await API.MEMBERS.GET(trainingId);
   return membs;
 };
