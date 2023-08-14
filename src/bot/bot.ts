@@ -315,15 +315,17 @@ class Bot {
     const hoursUntilNext11 = 24 - diff;
     this._minsTillPost = hoursUntilNext11 * 60 - mins;
 
-    setInterval(() => {
-      this._minsTillPost -= 60;
-      console.log(`Minutes left till next post: ${this._minsTillPost}`);
-    }, 60000 * 60);
+    this.runPostingWorker();
 
-    setTimeout(() => {
-      this.runPostingWorker();
-      setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
-    }, minsToMs(this._minsTillPost));
+    // setInterval(() => {
+    //   this._minsTillPost -= 60;
+    //   console.log(`Minutes left till next post: ${this._minsTillPost}`);
+    // }, 60000 * 60);
+
+    // setTimeout(() => {
+    //   this.runPostingWorker();
+    //   setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
+    // }, minsToMs(this._minsTillPost));
   }
 }
 
