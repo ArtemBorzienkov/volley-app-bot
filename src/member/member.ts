@@ -6,7 +6,7 @@ import { handleUser } from '../user';
 const uniqid = require('uniqid');
 
 export const addNewMember = async (user: TgUser, training: Training, oldMembs: TrainingMember[], value: number): Promise<TrainingMember[]> => {
-  console.log('add new member');
+  console.log(`add new member ${user.first_name || user.username}`);
   const isUserCoach = training.coachId === String(user.id);
   const isAlreadyRegistered = oldMembs.some((m) => m.userId === String(user.id));
   if (!isUserCoach && isAlreadyRegistered) {
@@ -44,6 +44,7 @@ export const addNewMember = async (user: TgUser, training: Training, oldMembs: T
 
 export const removeMembers = async (user: TgUser, oldMembs: TrainingMember[], trainingId: string): Promise<TrainingMember[]> => {
   const isRegistered = oldMembs.some((m) => m.userId === String(user.id));
+  console.log(`remove member ${user.first_name || user.username}, isRegistered: ${isRegistered}`);
   if (!isRegistered) {
     return oldMembs;
   }

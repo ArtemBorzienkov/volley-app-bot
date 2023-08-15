@@ -187,12 +187,10 @@ class Bot {
     });
 
     this._bot.on('callback_query', async (q) => {
-      console.log('🚀 ~ file: bot.ts:291 ~ Bot ~ this._bot.on ~ q:', q);
       const { from, message } = q;
       const chatId = message.chat.id;
       const topicId = message.message_thread_id || 0;
       const data = JSON.parse(q.data);
-      console.log('🚀 ~ file: bot.ts:194 ~ Bot ~ this._bot.on ~ data:', data);
 
       if (data.instruction === CRUD.DELETE) {
         configHandler.deleteConfig(data.id, false);
@@ -202,13 +200,9 @@ class Bot {
 
       if (data.train_id) {
         if (data.value === 0) {
-          console.log('removeMembers');
           const training = await getTraining(data.train_id);
-          console.log('🚀 ~ file: bot.ts:206 ~ Bot ~ this._bot.on ~ training:', training);
           const oldMembs = await getMembers(data.train_id);
-          console.log('🚀 ~ file: bot.ts:208 ~ Bot ~ this._bot.on ~ oldMembs:', oldMembs);
           const newMembs = await removeMembers(q.from, oldMembs, data.train_id);
-          console.log('🚀 ~ file: bot.ts:210 ~ Bot ~ this._bot.on ~ newMembs:', newMembs);
 
           this._bot.editMessageText(getMembersMsg(newMembs, training.maxMembers), {
             chat_id: chatId,
@@ -225,13 +219,9 @@ class Bot {
             this._bot.sendMessage(chatId, getReplaceMembMsg(rmUser, training.date, membsFromReserv), { message_thread_id: topicId ? topicId : null });
           }
         } else {
-          console.log('addNewMember');
           const training = await getTraining(data.train_id);
-          console.log('🚀 ~ file: bot.ts:224 ~ Bot ~ this._bot.on ~ training:', training);
           const oldMembs = await getMembers(data.train_id);
-          console.log('🚀 ~ file: bot.ts:225 ~ Bot ~ this._bot.on ~ oldMembs:', oldMembs);
           const newMembs = await addNewMember(q.from, training, oldMembs, data.value);
-          console.log('🚀 ~ file: bot.ts:226 ~ Bot ~ this._bot.on ~ newMembs:', newMembs);
 
           if (!training.msg) {
             this._bot.sendMessage(chatId, getMembersMsg(newMembs, training.maxMembers), { message_thread_id: topicId ? topicId : null }).then((resp) => {
