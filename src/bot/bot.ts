@@ -75,7 +75,7 @@ class Bot {
     this._bot.onText(/\/start$/, (msg) => {
       const { from, chat } = msg;
       handleUser({
-        id: from.id,
+        id: String(from.id),
         firstName: from.first_name,
         lastName: from.last_name || '',
         userName: from.username || '',
@@ -99,7 +99,7 @@ class Bot {
       if (chat.type !== 'private') {
         return;
       }
-      const configs = await API.CONFIG.GET_BY_COACH_ID(from.id);
+      const configs = await API.CONFIG.GET_BY_COACH_ID(String(from.id));
       if (configs.filter(getIsEmptyCfg).length === 0) {
         this._bot.sendMessage(chat.id, 'Нажаль доступних груп для створення графіку тренувань не знайдено');
         return;
@@ -123,7 +123,7 @@ class Bot {
       if (chat.type !== 'private') {
         return;
       }
-      const configs = await API.CONFIG.GET_BY_COACH_ID(from.id);
+      const configs = await API.CONFIG.GET_BY_COACH_ID(String(from.id));
       if (configs.filter(getIsNotEmptyCfg).length === 0) {
         this._bot.sendMessage(chat.id, 'Нажаль доступних груп для видалення графіку тренувань не знайдено');
         return;
@@ -218,7 +218,7 @@ class Bot {
           const lenOfOldMembs = oldMembs.length;
           const hasReserv = lenOfOldMembs > training.maxMembers;
           if (hasReserv) {
-            const rmUser = oldMembs.find((m) => m.userId === from.id);
+            const rmUser = oldMembs.find((m) => m.userId === String(from.id));
             const indexOfRmUser = oldMembs.indexOf(rmUser);
             const rmMembsCount = lenOfOldMembs - newMembs.length;
             const membsFromReserv = [...newMembs].splice(indexOfRmUser, rmMembsCount);
