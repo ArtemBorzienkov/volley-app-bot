@@ -142,7 +142,6 @@ class Bot {
     });
 
     this._bot.on('message', async (msg) => {
-      console.log('🚀 ~ file: bot.ts:145 ~ Bot ~ this._bot.on ~ msg:', msg);
       const { new_chat_member, left_chat_participant, chat, from, text } = msg;
 
       // join to a new chat
