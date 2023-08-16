@@ -142,6 +142,7 @@ class Bot {
     });
 
     this._bot.on('message', async (msg) => {
+      console.log('🚀 ~ file: bot.ts:145 ~ Bot ~ this._bot.on ~ msg:', msg);
       const { new_chat_member, left_chat_participant, chat, from, text } = msg;
 
       // join to a new chat
@@ -312,6 +313,7 @@ class Bot {
 
     setTimeout(() => {
       this.runPostingWorker();
+      this._minsTillPost = 60 * 24;
       setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
     }, minsToMs(this._minsTillPost));
   }
