@@ -293,17 +293,20 @@ class Bot {
 
   startTimer() {
     const minsToMs = (mins: number) => mins * 60000;
+    const hoursToMins = (num) => num * 60;
 
     const now = new Date();
     const hours = now.getUTCHours();
     const mins = now.getMinutes();
-    if (hours < this._timeForPostingUtc) {
-      this._minsTillPost = 60 - mins;
-    }
 
-    const diff = hours + 1 - this._timeForPostingUtc;
-    const hoursUntilNext11 = 24 - diff;
-    this._minsTillPost = hoursUntilNext11 * 60 - mins;
+    let diff = 0;
+    if (hours < this._timeForPostingUtc) {
+      diff = this._timeForPostingUtc - 1 - hours;
+      this._minsTillPost = hoursToMins(diff) - mins;
+    } else {
+      diff = hours + 1 - this._timeForPostingUtc;
+      this._minsTillPost = hoursToMins(24 - diff) - mins;
+    }
 
     setInterval(() => {
       this._minsTillPost -= 1;
