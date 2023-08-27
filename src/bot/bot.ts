@@ -147,18 +147,11 @@ class Bot {
       // join to a new chat
       if (new_chat_member && new_chat_member.id === Number(process.env.BOT_ID)) {
         console.log(`bot joined to a new chat: ${chat.title}`);
-        API.CONFIG.CREATE({
-          id: uniqid(),
+        API.GROUP.CREATE({
           chat_id: String(chat.id),
           chat_title: chat.title,
           coach_id: String(from.id),
-          day: '',
-          time: '',
-          max: 0,
-          location: '',
-          isForum: chat.is_forum,
-          publish_day: '',
-          topic_id: 0,
+          isForum: !!chat.is_forum,
         });
         return;
       }
@@ -211,13 +204,14 @@ class Bot {
 
           const lenOfOldMembs = oldMembs.length;
           const hasReserv = lenOfOldMembs > training.maxMembers;
+          const rmUser = oldMembs.find((m) => m.userId === String(from.id));
+          let membsFromReserv = [];
           if (hasReserv) {
-            const rmUser = oldMembs.find((m) => m.userId === String(from.id));
             const indexOfRmUser = oldMembs.indexOf(rmUser);
             const rmMembsCount = lenOfOldMembs - newMembs.length;
-            const membsFromReserv = [...newMembs].splice(indexOfRmUser, rmMembsCount);
-            this._bot.sendMessage(chatId, getReplaceMembMsg(rmUser, training.date, membsFromReserv), { message_thread_id: topicId ? topicId : null });
+            membsFromReserv = [...newMembs].splice(indexOfRmUser, rmMembsCount);
           }
+          this._bot.sendMessage(chatId, getReplaceMembMsg(rmUser, training.date, membsFromReserv), { message_thread_id: topicId ? topicId : null });
         } else {
           const training = await getTraining(data.train_id);
           const oldMembs = await getMembers(data.train_id);
@@ -292,32 +286,33 @@ class Bot {
   }
 
   startTimer() {
-    const minsToMs = (mins: number) => mins * 60000;
-    const hoursToMins = (num) => num * 60;
+    this.runPostingWorker();
+    // const minsToMs = (mins: number) => mins * 60000;
+    // const hoursToMins = (num) => num * 60;
 
-    const now = new Date();
-    const hours = now.getUTCHours();
-    const mins = now.getMinutes();
+    // const now = new Date();
+    // const hours = now.getUTCHours();
+    // const mins = now.getMinutes();
 
-    let diff = 0;
-    if (hours < this._timeForPostingUtc) {
-      diff = this._timeForPostingUtc - 1 - hours;
-      this._minsTillPost = hoursToMins(diff) - mins;
-    } else {
-      diff = hours + 1 - this._timeForPostingUtc;
-      this._minsTillPost = hoursToMins(24 - diff) - mins;
-    }
+    // let diff = 0;
+    // if (hours < this._timeForPostingUtc) {
+    //   diff = this._timeForPostingUtc - 1 - hours;
+    //   this._minsTillPost = hoursToMins(diff) - mins;
+    // } else {
+    //   diff = hours + 1 - this._timeForPostingUtc;
+    //   this._minsTillPost = hoursToMins(24 - diff) - mins;
+    // }
 
-    setInterval(() => {
-      this._minsTillPost -= 1;
-      console.log(`Minutes left till next post: ${this._minsTillPost}`);
-    }, 60000);
+    // setInterval(() => {
+    //   this._minsTillPost -= 1;
+    //   console.log(`Minutes left till next post: ${this._minsTillPost}`);
+    // }, 60000);
 
-    setTimeout(() => {
-      this.runPostingWorker();
-      this._minsTillPost = 60 * 24;
-      setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
-    }, minsToMs(this._minsTillPost));
+    // setTimeout(() => {
+    //   this.runPostingWorker();
+    //   this._minsTillPost = 60 * 24;
+    //   setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
+    // }, minsToMs(this._minsTillPost));
   }
 }
 

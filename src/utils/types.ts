@@ -49,3 +49,10 @@ export interface TgUser {
   is_premium?: boolean;
   meta?: string;
 }
+
+export interface Group {
+  chat_id: string;
+  chat_title: string;
+  coach_id: string;
+  isForum?: boolean;
+}

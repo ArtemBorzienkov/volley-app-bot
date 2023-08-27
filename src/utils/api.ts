@@ -1,7 +1,16 @@
 import fetch from 'node-fetch';
-import { TrainingMember, User, Config, Training } from './types';
+import { TrainingMember, User, Config, Training, Group } from './types';
 
 export const API = {
+  GROUP: {
+    CREATE: async (data: Group) => {
+      await fetch(`${process.env.API_URL}/group`, {
+        method: 'post',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    },
+  },
   CONFIG: {
     CREATE: async (data: Config) => {
       await fetch(`${process.env.API_URL}/config`, {
