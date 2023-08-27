@@ -286,33 +286,32 @@ class Bot {
   }
 
   startTimer() {
-    this.runPostingWorker();
-    // const minsToMs = (mins: number) => mins * 60000;
-    // const hoursToMins = (num) => num * 60;
+    const minsToMs = (mins: number) => mins * 60000;
+    const hoursToMins = (num) => num * 60;
 
-    // const now = new Date();
-    // const hours = now.getUTCHours();
-    // const mins = now.getMinutes();
+    const now = new Date();
+    const hours = now.getUTCHours();
+    const mins = now.getMinutes();
 
-    // let diff = 0;
-    // if (hours < this._timeForPostingUtc) {
-    //   diff = this._timeForPostingUtc - 1 - hours;
-    //   this._minsTillPost = hoursToMins(diff) - mins;
-    // } else {
-    //   diff = hours + 1 - this._timeForPostingUtc;
-    //   this._minsTillPost = hoursToMins(24 - diff) - mins;
-    // }
+    let diff = 0;
+    if (hours < this._timeForPostingUtc) {
+      diff = this._timeForPostingUtc - 1 - hours;
+      this._minsTillPost = hoursToMins(diff) - mins;
+    } else {
+      diff = hours + 1 - this._timeForPostingUtc;
+      this._minsTillPost = hoursToMins(24 - diff) - mins;
+    }
 
-    // setInterval(() => {
-    //   this._minsTillPost -= 1;
-    //   console.log(`Minutes left till next post: ${this._minsTillPost}`);
-    // }, 60000);
+    setInterval(() => {
+      this._minsTillPost -= 1;
+      console.log(`Minutes left till next post: ${this._minsTillPost}`);
+    }, 60000);
 
-    // setTimeout(() => {
-    //   this.runPostingWorker();
-    //   this._minsTillPost = 60 * 24;
-    //   setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
-    // }, minsToMs(this._minsTillPost));
+    setTimeout(() => {
+      this.runPostingWorker();
+      this._minsTillPost = 60 * 24;
+      setInterval(() => this.runPostingWorker(), 60000 * 60 * 24);
+    }, minsToMs(this._minsTillPost));
   }
 }
 
