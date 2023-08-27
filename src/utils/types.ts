@@ -10,6 +10,8 @@ export interface Config {
   isForum: boolean;
   publish_day: string;
   topic_id: number;
+  active: boolean;
+  repeatable: boolean;
 }
 
 export interface User {
@@ -55,4 +57,38 @@ export interface Group {
   chat_title: string;
   coach_id: string;
   isForum?: boolean;
+}
+
+export interface TgMessage {
+  from: TgUser;
+  chat: {
+    id: string;
+    type: string;
+    title: string;
+    first_name: string;
+    is_forum?: boolean;
+  };
+  new_chat_member: {
+    id: number;
+  };
+  left_chat_participant: {
+    id: number;
+  };
+  text: string;
+}
+
+export interface TgCallBackQ {
+  from: TgUser;
+  message: {
+    chat: {
+      id: string;
+      type: string;
+      title: string;
+      first_name: string;
+      is_forum?: boolean;
+    };
+    message_thread_id?: number;
+  };
+  data: string;
+  text: string;
 }

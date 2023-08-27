@@ -140,7 +140,7 @@ const getParsedNumber = (numb: number): string => (numb < 10 ? `0${numb}` : Stri
 export const getTrainingDate = (data: Config) => {
   const todayIndexWeek = new Date().getDay();
   const trainIndexWeek = WEEK_DAYS.findIndex((el) => el === data.day);
-  const dayBeforeTrain = trainIndexWeek > todayIndexWeek ? trainIndexWeek - todayIndexWeek : 7 - todayIndexWeek + trainIndexWeek;
+  const dayBeforeTrain = trainIndexWeek >= todayIndexWeek ? trainIndexWeek - todayIndexWeek : 7 - todayIndexWeek + trainIndexWeek;
   const eventDate = new Date(new Date().setDate(new Date().getDate() + dayBeforeTrain));
   return `${getParsedNumber(eventDate.getDate())}.${getParsedNumber(eventDate.getMonth() + 1)}.${eventDate.getFullYear()}`;
 };

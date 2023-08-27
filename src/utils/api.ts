@@ -13,11 +13,12 @@ export const API = {
   },
   CONFIG: {
     CREATE: async (data: Config) => {
-      await fetch(`${process.env.API_URL}/config`, {
+      const config = await await fetch(`${process.env.API_URL}/config`, {
         method: 'post',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' },
       });
+      return config.json();
     },
     GET_ALL: async (): Promise<Config[]> => {
       const config = await fetch(`${process.env.API_URL}/config`, {

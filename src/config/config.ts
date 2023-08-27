@@ -18,6 +18,8 @@ const DEFAULT_CONFIG: ConfigCreation = {
   isForum: false,
   publish_day: '',
   topic_id: 0,
+  active: true,
+  repeatable: true,
   isFinished: true,
 };
 
