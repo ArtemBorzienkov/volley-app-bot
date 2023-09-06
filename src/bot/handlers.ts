@@ -222,7 +222,9 @@ export const onCallBackHandler = async (q: TgCallBackQ) => {
         const rmMembsCount = lenOfOldMembs - newMembs.length;
         membsFromReserv = [...newMembs].splice(indexOfRmUser, rmMembsCount);
       }
-      bot.sendMsg(chatId, getReplaceMembMsg(rmUser, training.date, membsFromReserv), { message_thread_id: topicId ? topicId : null });
+      if (rmUser && rmUser.name) {
+        bot.sendMsg(chatId, getReplaceMembMsg(rmUser, training.date, membsFromReserv), { message_thread_id: topicId ? topicId : null });
+      }
     } else {
       const training = await getTraining(data.train_id);
       const oldMembs = await getMembers(data.train_id);
