@@ -100,11 +100,20 @@ export const onCreateEventHandler = async (msg: TgMessage) => {
     return;
   }
 
-  console.log(msg);
+  const configs = await API.CONFIG.GET_BY_COACH_ID(String(from.id));
+  if (!configs) {
+    return;
+  }
+
+  const hasAccessToPublish = configs.some((cfg) => cfg.chat_id === chat.id && cfg.coach_id === String(from.id));
+  if (!hasAccessToPublish) {
+    bot.sendMsg(chat.id, `Подія може бути створена тільки тренером або адміном`);
+  }
+
   let date;
   let time;
-  let location;
-  let max;
+  let location = '';
+  let max = 18;
   const arr = text.split(' ');
   arr.forEach((el, index) => {
     if (el === 'на') {
@@ -120,7 +129,7 @@ export const onCreateEventHandler = async (msg: TgMessage) => {
       max = Number(arr[index + 1]);
     }
   });
-  if (!date || !time || !location || !max) {
+  if (!date || !time) {
     bot.sendMsg(
       chat.id,
       `Подія має містити дату, час, місце і кількість учасників\nВ форматі "на <дата> о <час> в <місце> для <кількість>"\nнаприклад:\n/event на 01.10 о 18:30 в Школа18 для 18`,
@@ -148,7 +157,6 @@ export const onCreateEventHandler = async (msg: TgMessage) => {
     repeatable: false,
   };
 
-  console.log('🚀 ~ file: handlers.ts:149 ~ onCreateEventHandler ~ cfg:', cfg);
   API.CONFIG.CREATE(cfg).then((res) => bot.postRegistrationMsg(res));
 };
 
@@ -218,9 +226,8 @@ export const onCallBackHandler = async (q: TgCallBackQ) => {
       const rmUser = oldMembs.find((m) => m.userId === String(from.id));
       let membsFromReserv = [];
       if (hasReserv) {
-        const indexOfRmUser = oldMembs.indexOf(rmUser);
         const rmMembsCount = lenOfOldMembs - newMembs.length;
-        membsFromReserv = [...newMembs].splice(indexOfRmUser, rmMembsCount);
+        membsFromReserv = [...newMembs].splice(training.maxMembers, rmMembsCount);
       }
       if (rmUser && rmUser.name) {
         bot.sendMsg(chatId, getReplaceMembMsg(rmUser, training.date, membsFromReserv), { message_thread_id: topicId ? topicId : null });
