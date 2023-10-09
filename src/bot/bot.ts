@@ -37,11 +37,14 @@ class Bot {
   async postRegistrationMsg(data: Config) {
     const eventDate = getTrainingDate(data);
     const training = await createTraining(data, eventDate);
-    const textMsg = data.repeatable ? '👋 Всім привіт! \n✍️ Відкрито запис на тренування' : '✍️ Записуємось';
+
+    const isYuliaChat = data.chat_id === '-1001599114412';
+    const isTrainingWithCoach = data.day === 'середа';
+    const eventType = isYuliaChat ? (isTrainingWithCoach ? 'ТЕХНІЧНЕ тренування З ТРЕНЕРОМ' : ' ігрове тренування БЕЗ тренера') : 'тренування';
 
     this._bot.sendMessage(
       isDev() ? testChatId : data.chat_id,
-      `${textMsg} \n📆 Коли? ${data.day} ${eventDate} на ${data.time}\n📍 Де? ${data.location}\n👥 Кількість учасників: ${data.max}`,
+      `✍️ Відкрито запис\n💪 Формат: ${eventType}\n📆 Коли? ${data.day} ${eventDate} на ${data.time}\n📍 Де? ${data.location}\n👥 Кількість учасників: ${data.max}`,
       {
         reply_markup: {
           inline_keyboard: [
