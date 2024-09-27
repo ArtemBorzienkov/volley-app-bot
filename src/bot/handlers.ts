@@ -100,24 +100,16 @@ export const onCreateEventHandler = async (msg: TgMessage) => {
     return;
   }
 
-  const configs = await API.CONFIG.GET_BY_COACH_ID(String(from.id));
-  if (!configs) {
-    return;
-  }
-
-  const hasAccessToPublish = configs.some((cfg) => cfg.chat_id === chat.id && cfg.coach_id === String(from.id));
-  if (!hasAccessToPublish) {
-    bot.sendMsg(chat.id, `Подія може бути створена тільки тренером або адміном`);
-  }
-
-  let date;
+  let day;
   let time;
   let location = '';
   let max = 18;
   const arr = text.split(' ');
   arr.forEach((el, index) => {
     if (el === 'на') {
-      date = arr[index + 1];
+      const weekDay = arr[index + 1];
+      const date = arr[index + 2] !== 'о' ? arr[index + 2] : '';
+      day = `${weekDay} ${date}`;
     }
     if (el === 'о') {
       time = arr[index + 1];
@@ -129,7 +121,7 @@ export const onCreateEventHandler = async (msg: TgMessage) => {
       max = Number(arr[index + 1]);
     }
   });
-  if (!date || !time) {
+  if (!day || !time) {
     bot.sendMsg(
       chat.id,
       `Подія має містити дату, час, місце і кількість учасників\nВ форматі "на <дата> о <час> в <місце> для <кількість>"\nнаприклад:\n/event на 01.10 о 18:30 в Школа18 для 18`,
@@ -146,7 +138,7 @@ export const onCreateEventHandler = async (msg: TgMessage) => {
     chat_id: String(chat.id),
     chat_title: chat.title,
     coach_id: String(from.id),
-    day: todayWeekDay,
+    day,
     time,
     max,
     location,

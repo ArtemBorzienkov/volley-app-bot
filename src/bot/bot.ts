@@ -35,16 +35,13 @@ class Bot {
   }
 
   async postRegistrationMsg(data: Config) {
-    const eventDate = getTrainingDate(data);
+    const eventDate = Boolean(data.repeatable) ? `${data.day} ${getTrainingDate(data)}` : data.day;
     const training = await createTraining(data, eventDate);
-
-    const isYuliaChat = data.chat_id === '-1001599114412';
-    const isTrainingWithCoach = data.day === 'середа';
-    const eventType = isYuliaChat ? (isTrainingWithCoach ? 'ТЕХНІЧНЕ тренування З ТРЕНЕРОМ' : ' ігрове тренування БЕЗ тренера') : 'тренування';
+    const eventType = Boolean(data.repeatable) ? '\n💪 Формат: тренування' : '';
 
     this._bot.sendMessage(
       isDev() ? testChatId : data.chat_id,
-      `✍️ Відкрито запис\n💪 Формат: ${eventType}\n📆 Коли? ${data.day} ${eventDate} на ${data.time}\n📍 Де? ${data.location}\n👥 Кількість учасників: ${data.max}`,
+      `✍️ Відкрито запис${eventType}\n📆 Коли? ${eventDate} на ${data.time}\n📍 Де? ${data.location}\n👥 Кількість учасників: ${data.max}`,
       {
         reply_markup: {
           inline_keyboard: [
@@ -63,7 +60,7 @@ class Bot {
     const dayNum = new Date().getDay();
     const todayWeekDay = WEEK_DAYS[dayNum];
     console.log(`start posting, today is ${todayWeekDay}`);
-    const arrPosting = config.filter((cfg) => cfg.publish_day === todayWeekDay).map((cfg) => ({ ...cfg, chat_id: isDev() ? testChatId : cfg.chat_id }));
+    const arrPosting = config.filter((cfg) => cfg.publish_day === todayWeekDay).map((cfg) => ({ ...cfg, chat_id: isDev() ? '-4537783508' : cfg.chat_id }));
     arrPosting.forEach((data) => {
       if (data.repeatable && data.active) {
         this.postRegistrationMsg(data);
